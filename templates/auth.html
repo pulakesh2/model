@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Create account' if mode == 'signup' else 'Log in' }} · Stillframe{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-story">
+    <div class="eyebrow"><span class="eyebrow-line"></span> A PHOTO COMMUNITY</div>
+    <h1>Every picture<br>has a <em>feeling.</em></h1>
+    <p class="story-copy">A place to share the moments that stay with you — and find the ones you haven't seen yet.</p>
+    <div class="story-note"><span class="note-star">✳</span><span>Look closely.<br><strong>Leave a little love.</strong></span></div>
+    <div class="story-visual"><div class="sun-disc"></div><div class="hill hill-back"></div><div class="hill hill-front"></div><span class="visual-caption">somewhere, softly</span></div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-panel-inner">
+      <div class="eyebrow">{{ 'YOUR CORNER STARTS HERE' if mode == 'signup' else 'GOOD TO HAVE YOU BACK' }}</div>
+      <h2>{{ 'Join the community' if mode == 'signup' else 'Welcome back' }}</h2>
+      <p class="auth-subtitle">{{ 'Create an account and share what you see.' if mode == 'signup' else 'Log in to see what everyone is seeing.' }}</p>
+      <form method="post" class="auth-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if mode == 'signup' %}
+        <label for="username">Username</label>
+        <input id="username" name="username" placeholder="How should we call you?" minlength="1" maxlength="32" required autocomplete="username" value="{{ request.form.get('username', '') }}">
+        <label for="email">Email address</label>
+        <input id="email" type="email" name="email" placeholder="you@example.com" required autocomplete="email" value="{{ request.form.get('email', '') }}">
+        {% else %}
+        <label for="identity">Username or email</label>
+        <input id="identity" name="identity" placeholder="Your username or email" required autocomplete="username" value="{{ request.form.get('identity', '') }}">
+        {% endif %}
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" placeholder="{{ 'At least 8 characters' if mode == 'signup' else 'Your password' }}" minlength="{{ 8 if mode == 'signup' else 1 }}" required autocomplete="{{ 'new-password' if mode == 'signup' else 'current-password' }}">
+        <button class="button button-dark button-wide" type="submit">{{ 'Create my account' if mode == 'signup' else 'Log in' }} <span>→</span></button>
+      </form>
+      <p class="auth-switch">{{ 'Already have an account?' if mode == 'signup' else 'New around here?' }} <a href="{{ url_for('login') if mode == 'signup' else url_for('signup') }}">{{ 'Log in' if mode == 'signup' else 'Create an account' }}</a></p>
+      {% if mode == 'login' %}<p class="auth-footnote">Your photos, your people, your point of view.</p>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

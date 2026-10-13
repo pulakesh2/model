@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Share a moment · Stillframe{% endblock %}
+{% block content %}
+<section class="upload-page">
+  <a class="back-link" href="{{ url_for('feed') }}">← <span>Back to the gallery</span></a>
+  <div class="upload-page-heading"><div class="eyebrow"><span class="eyebrow-line"></span> ADD TO THE COMMUNITY GALLERY</div><h1>Share a <em>moment.</em></h1><p>Everyday scenes, once-in-a-lifetime views, or a little clip from your day. We’d love to see it.</p></div>
+  <form class="upload-card" method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="dropzone" for="media-file" id="dropzone">
+      <input id="media-file" type="file" name="media" accept="image/png,image/jpeg,image/gif,image/webp,video/mp4,video/webm,video/quicktime" required>
+      <span class="dropzone-icon">↥</span><strong id="file-label">Choose an image or video</strong><span id="file-subtitle">or drop it here to begin sharing</span><small>PNG, JPG, GIF, WebP, MP4, WebM, MOV <i>·</i> up to 100 MB</small>
+    </label>
+    <label class="caption-label" for="caption">A few words <span>OPTIONAL</span></label>
+    <textarea id="caption" name="caption" maxlength="300" rows="3" placeholder="What’s happening in this moment? Let the image speak, or add a little context…"></textarea>
+    <div class="upload-card-footer"><span>Your post will be visible in the community gallery.</span><button class="button button-dark" type="submit">Share with the community <span>↗</span></button></div>
+  </form>
+  <div class="upload-note"><span>✳</span> One small moment can brighten someone’s whole scroll.</div>
+</section>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('media-file');
+    const zone = document.getElementById('dropzone');
+    const label = document.getElementById('file-label');
+    const subtitle = document.getElementById('file-subtitle');
+    const showFile = file => {
+      if (!file) return;
+      label.textContent = file.name;
+      subtitle.textContent = `${(file.size / 1024 / 1024).toFixed(1)} MB · ready to share`;
+      zone.classList.add('has-file');
+    };
+    input.addEventListener('change', () => showFile(input.files[0]));
+    ['dragenter', 'dragover'].forEach(name => zone.addEventListener(name, event => { event.preventDefault(); zone.classList.add('dragging'); }));
+    ['dragleave', 'drop'].forEach(name => zone.addEventListener(name, event => { event.preventDefault(); zone.classList.remove('dragging'); }));
+    zone.addEventListener('drop', event => {
+      const file = event.dataTransfer.files[0];
+      if (!file) return;
+      const transfer = new DataTransfer(); transfer.items.add(file); input.files = transfer.files; showFile(file);
+    });
+  });
+</script>
+{% endblock %}

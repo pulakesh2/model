@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f6f2">
+  <title>{% block title %}Stillframe{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('feed') if g.user else url_for('login') }}"><span class="brand-mark">s</span> stillframe<span class="brand-period">.</span></a>
+    {% if g.user %}
+    <nav class="nav-links" aria-label="Main navigation">
+      <a class="nav-item {% if request.endpoint == 'feed' %}active{% endif %}" href="{{ url_for('feed') }}">Discover</a>
+      <a class="nav-item {% if request.endpoint == 'upload' %}active{% endif %}" href="{{ url_for('upload') }}">Upload</a>
+      <a class="nav-item {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}">My account</a>
+      <form method="post" action="{{ url_for('logout') }}" class="logout-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="nav-logout" type="submit">Log out <span>↗</span></button>
+      </form>
+      <a class="user-chip" href="{{ url_for('account') }}"><span class="avatar">{{ g.user.username[0]|upper }}</span><span>{{ g.user.username }}</span></a>
+    </nav>
+    {% endif %}
+  </header>
+  <main class="page-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="flash flash-{{ category }}">{{ message }}<button type="button" aria-label="Dismiss" onclick="this.parentElement.remove()">×</button></div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <div class="viewer" id="media-viewer" aria-hidden="true">
+    <button class="viewer-backdrop" type="button" data-viewer-close aria-label="Close media viewer"></button>
+    <section class="viewer-dialog" role="dialog" aria-modal="true" aria-label="Media viewer">
+      <button class="viewer-close" type="button" data-viewer-close aria-label="Close">×</button>
+      <div class="viewer-media" id="viewer-media"></div>
+      <div class="viewer-caption"><p id="viewer-caption"></p><span id="viewer-byline"></span></div>
+    </section>
+  </div>
+  <footer class="site-footer"><span>Stillframe</span><span>A little corner of the internet for the things you see.</span></footer>
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>

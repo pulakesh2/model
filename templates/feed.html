@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Discover · Stillframe{% endblock %}
+{% block content %}
+<section class="feed-heading">
+  <div><div class="eyebrow"><span class="eyebrow-line"></span> THE COMMUNITY GALLERY</div><h1>See the world<br><em>through us.</em></h1></div>
+  <p class="feed-intro">Small moments, big feelings. Take your time, find something you love, and leave it a little rating.</p>
+</section>
+<div class="feed-actions"><span>Have something worth sharing?</span><a class="button button-dark" href="{{ url_for('upload') }}">Upload a moment <span>↗</span></a></div>
+<div class="gallery-title"><div><span class="eyebrow">FRESH FROM THE COMMUNITY</span><h2>The latest <span>frames</span></h2></div><span class="gallery-count">{{ posts|length }} {{ 'photo' if posts|length == 1 else 'photos' }}</span></div>
+{% if posts %}
+<section class="photo-grid">
+  {% for post in posts %}
+  <article class="photo-card">
+    <div class="photo-wrap"><button class="media-open" type="button" data-src="{{ url_for('static', filename='uploads/' ~ post.filename) }}" data-kind="{{ 'video' if is_video(post.filename) else 'image' }}" data-caption="{{ post.caption or 'A moment, captured.' }}" data-byline="{{ post.username }} · {{ post.created_at[:10] }}" aria-label="Open {{ 'video' if is_video(post.filename) else 'photo' }} by {{ post.username }}">{% if is_video(post.filename) %}<video src="{{ url_for('static', filename='uploads/' ~ post.filename) }}#t=0.1" muted playsinline preload="metadata" aria-hidden="true"></video><span class="video-indicator">▶ video</span>{% else %}<img src="{{ url_for('static', filename='uploads/' ~ post.filename) }}" alt="{{ post.caption or ('Photo by ' ~ post.username) }}" loading="lazy">{% endif %}<span class="view-hint">View full size <span>↗</span></span></button><div class="photo-score"><span>✳</span> {{ '%.1f'|format(post.average_rating) if post.average_rating is not none else '—' }} <small>/ 10</small></div></div>
+    <div class="card-content"><div class="card-meta"><span class="author-avatar">{{ post.username[0]|upper }}</span><span class="author-name">{{ post.username }}</span><span class="meta-dot">·</span><time>{{ post.created_at[:10] }}</time></div>
+      {% if post.caption %}<p class="caption">{{ post.caption }}</p>{% else %}<p class="caption muted-caption">A moment, captured.</p>{% endif %}
+      <div class="rating-row"><div class="rating-total"><strong>{{ '%.1f'|format(post.average_rating) if post.average_rating is not none else '—' }}</strong><span>{{ post.rating_count }} {{ 'rating' if post.rating_count == 1 else 'ratings' }}</span></div>
+        {% if post.user_id != g.user.id %}<form class="rating-form" method="post" action="{{ url_for('rate', post_id=post.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label for="rating-{{ post.id }}">{{ 'Your rating' if not post.my_rating else 'Your rating: ' ~ post.my_rating }}</label><div class="rating-controls"><select id="rating-{{ post.id }}" name="score" required aria-label="Choose a rating from 1 to 10"><option value="" disabled {% if not post.my_rating %}selected{% endif %}>Rate</option>{% for n in range(1, 11) %}<option value="{{ n }}" {% if post.my_rating == n %}selected{% endif %}>{{ n }}</option>{% endfor %}</select><button type="submit" aria-label="Save rating">→</button></div></form>{% else %}<span class="own-photo-note">Your photo</span>{% endif %}
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% else %}
+<section class="empty-state"><div class="empty-sun">✳</div><h2>It’s quiet in here.</h2><p>Be the first to share a moment with the community.</p><a class="button button-outline" href="{{ url_for('upload') }}">Share your first photo <span>→</span></a></section>
+{% endif %}
+{% endblock %}
